@@ -11,9 +11,7 @@ export default function PageHeader({ title, addHref, addLabel, children }) {
 
         {addHref && (
           <Button asChild>
-            <Link href={addHref} asChild>
-              {addLabel}
-            </Link>
+            <Link href={addHref}>{addLabel}</Link>
           </Button>
         )}
       </div>
