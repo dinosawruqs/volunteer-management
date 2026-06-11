@@ -9,15 +9,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button"
+import Link from "next/link";
 
 const AssigmentTypePage = () => {
   return (
     <div className="flex flex-col gap-2 size-lg">
         <h2 className="text-2xl font-bold tracking-tight">Assigment Type</h2>
         <div className="flex items-center justify-end mb-2">
-          <Button variant="default" size="sm">
-            Add ASSIGMENT
-          </Button>
+          <Link href="assigment-type/add">
+            <Button variant="default" size="sm">
+              Add ASSIGMENT
+            </Button>
+          </Link>
         </div>
       <Table>
         <TableCaption>A list of your recent invoices.</TableCaption>
