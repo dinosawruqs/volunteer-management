@@ -52,7 +52,7 @@ const data = {
         },
         {
           title: "Assignment Type",
-          url: "#",
+          url: "/assigment-type",
         },
         {
           title: "Sertification",
