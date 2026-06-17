@@ -65,23 +65,23 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: <FrameIcon />,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: <PieChartIcon />,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: <MapIcon />,
-    },
-  ],
+  // projects: [
+  //   {
+  //     name: "Design Engineering",
+  //     url: "#",
+  //     icon: <FrameIcon />,
+  //   },
+  //   {
+  //     name: "Sales & Marketing",
+  //     url: "#",
+  //     icon: <PieChartIcon />,
+  //   },
+  //   {
+  //     name: "Travel",
+  //     url: "#",
+  //     icon: <MapIcon />,
+  //   },
+  // ],
 };
 
 export function AppSidebar({ ...props }) {
@@ -96,7 +96,7 @@ export function AppSidebar({ ...props }) {
                   <BookUser className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">Your Project</span>
+                  <span className="font-medium">VolMan</span>
                   <span className="">v1.0.0</span>
                 </div>
               </a>
@@ -106,7 +106,7 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
