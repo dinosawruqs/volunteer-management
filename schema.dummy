@@ -1,0 +1,147 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Disarankan untuk Supabase (connection pooling)
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// 1. MASTER TABLES (Level 1)
+model Role {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  namaRole  String   @map("nama_role") @db.VarChar
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relasi ke tabel Users
+  users     User[]
+
+  @@map("roles")
+}
+
+model Unit {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  namaUnit  String   @map("nama_unit") @db.VarChar
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relasi ke tabel Users dan Volunteers
+  users      User[]
+  volunteers Volunteer[]
+
+  @@map("units")
+}
+
+model TypePenugasan {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  namaTipe  String   @map("nama_tipe") @db.VarChar
+  skorDasar Int      @default(1) @map("skor_dasar") @db.Integer
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relasi ke tabel Penugasan
+  penugasan Penugasan[]
+
+  @@map("type_penugasan")
+}
+
+model MasterSertifikasi {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  namaSertifikasi String   @unique @map("nama_sertifikasi") @db.VarChar
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relasi ke tabel VolunteerSertifikasi
+  volunteerSertifikasi VolunteerSertifikasi[]
+
+  @@map("master_sertifikasi")
+}
+
+
+/// 2. USER PROFILE & VOLUNTEER ENTITIES (Level 2)
+model User {
+  id           String   @id @db.Uuid // ID disamakan dengan ID dari auth.users Supabase via Trigger
+  unitId       String?  @map("unit_id") @db.Uuid // Opsional untuk Super Admin yang tidak punya unit
+  roleId       String   @map("role_id") @db.Uuid
+  email        String   @unique @db.VarChar
+  passwordHash String   @map("password_hash") @db.VarChar
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Hubungan Relasi
+  unit  Unit? @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  role  Role  @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@map("users")
+}
+
+model Volunteer {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  unitId            String   @map("unit_id") @db.Uuid
+  namaLengkap       String   @map("nama_lengkap") @db.VarChar
+  nia               String?  @db.VarChar
+  golonganDarah     String?  @map("golongan_darah") @db.VarChar(3)
+  kecamatanDomisili String?  @map("kecamatan_domisili") @db.VarChar
+  kelurahanDomisili String?  @map("kelurahan_domisili") @db.VarChar
+  alamatDomisili    String?  @map("alamat_domisili") @db.Text
+  tanggalBergabung  DateTime @map("tanggal_bergabung") @db.Date
+  statusAktif       Boolean  @default(true) @map("status_aktif") @db.Boolean
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Hubungan Relasi
+  unit                 Unit                   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  volunteerSertifikasi VolunteerSertifikasi[]
+  volunteerPenugasan   VolunteerPenugasan[]
+
+  @@map("volunteers")
+}
+
+
+/// 3. TRANSACTIONS & HISTORICAL TABLES (Level 3)
+model Penugasan {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  typePenugasanId String   @map("type_penugasan_id") @db.Uuid
+  namaTugas       String   @map("nama_tugas") @db.VarChar
+  lokasi          String?  @db.VarChar
+  tanggalMulai    DateTime @map("tanggal_mulai") @db.Date
+  tanggalSelesai  DateTime @map("tanggal_selesai") @db.Date
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Hubungan Relasi
+  typePenugasan      TypePenugasan        @relation(fields: [typePenugasanId], references: [id], onDelete: Restrict)
+  volunteerPenugasan VolunteerPenugasan[]
+
+  @@map("penugasan")
+}
+
+
+/// 4. JUNCTION / PIVOT TABLES (Level 4)
+model VolunteerSertifikasi {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  volunteerId         String    @map("volunteer_id") @db.Uuid
+  masterSertifikasiId String    @map("master_sertifikasi_id") @db.Uuid
+  nomorSertifikat     String?   @map("nomor_sertifikat") @db.VarChar
+  tanggalTerbit       DateTime? @map("tanggal_terbit") @db.Date
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // Hubungan Relasi
+  volunteer         Volunteer         @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+  masterSertifikasi MasterSertifikasi @relation(fields: [masterSertifikasiId], references: [id], onDelete: Restrict)
+
+  // Composite Unique Constraint (Mencegah input sertifikasi ganda pada satu relawan)
+  @@unique([volunteerId, masterSertifikasiId])
+  @@map("volunteer_sertifikasi")
+}
+
+model VolunteerPenugasan {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  volunteerId String   @map("volunteer_id") @db.Uuid
+  penugasanId String   @map("penugasan_id") @db.Uuid
+  totalPoin   Int      @map("total_poin") @db.Integer
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Hubungan Relasi
+  volunteer Volunteer @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+  penugasan Penugasan @relation(fields: [penugasanId], references: [id], onDelete: Cascade)
+
+  // Composite Unique Constraint (Mencegah klaim poin ganda dalam satu tugas)
+  @@unique([volunteerId, penugasanId])
+  @@map("volunteer_penugasan")
+}
