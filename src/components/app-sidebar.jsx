@@ -29,6 +29,7 @@ import {
   MapIcon,
   GalleryVerticalEnd,
   BookUser,
+  Settings2,
 } from "lucide-react";
 
 // This is sample data.
@@ -60,31 +61,45 @@ const data = {
         },
         {
           title: "Sertification",
-          url: "#",
+          url: "/sertification-management",
         },
         {
           title: "Volunteer",
-          url: "#",
+          url: "/volunteer-management",
         },
+      ],
+    },
+    {
+      title: "Assigment",
+      url: "#",
+      icon: <Settings2 />,
+      items: [
+        {
+          title: "Assigment Volunteer",
+          url: "/assignment-volunteer",
+        },
+        // {
+        //   title: "Team",
+        //   url: "#",
+        // },
+        // {
+        //   title: "Billing",
+        //   url: "#",
+        // },
+        // {
+        //   title: "Limits",
+        //   url: "#",
+        // },
       ],
     },
   ],
   // projects: [
   //   {
-  //     name: "Design Engineering",
+  //     name: "Assignment",
   //     url: "#",
   //     icon: <FrameIcon />,
   //   },
-  //   {
-  //     name: "Sales & Marketing",
-  //     url: "#",
-  //     icon: <PieChartIcon />,
-  //   },
-  //   {
-  //     name: "Travel",
-  //     url: "#",
-  //     icon: <MapIcon />,
-  //   },
+
   // ],
 };
 

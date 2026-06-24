@@ -1,4 +1,4 @@
-import AddAssigmentPage from '@/components/page-component/assigment-type/add-assigment-page'
+import AddAssigmentPage from '@/components/page-component/assigment-type/add-assigment-type-page'
 import AssigmentTypePage from '@/components/page-component/assigment-type/assigment-type-page'
 import React from 'react'
 

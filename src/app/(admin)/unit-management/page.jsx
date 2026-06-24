@@ -1,4 +1,4 @@
-import UnitManagementPage from '@/components/page-component/unit-management/UnitManagementPage'
+import UnitManagementPage from '@/components/page-component/unit-management/unit-management-page'
 import React from 'react'
 
 const page = () => {
