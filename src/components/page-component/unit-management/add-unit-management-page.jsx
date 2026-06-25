@@ -1,51 +1,81 @@
 "use client";
+import { createUnitandUser } from "@/app/(admin)/unit-management/add/action";
 import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 const formSchema = z.object({
-  title: z
+  name: z
     .string()
-    .min(5, "Bug title must be at least 5 characters.")
-    .max(32, "Bug title must be at most 32 characters."),
-  description: z
+    .min(5, "Name must be at least 5 characters.")
+    .max(32, "Name must be at most 32 characters."),
+  email: z
     .string()
-    .min(20, "Description must be at least 20 characters.")
-    .max(100, "Description must be at most 100 characters."),
+    .min(1, { message: "Email tidak boleh kosong." })
+    .email({ message: "Format email tidak valid." }),
 });
 
 const AddUnitManagementPage = () => {
   const [open, setOpen] = useState(false);
-  const form = useForm();
   const router = useRouter();
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+    },
+  });
+
+  const onSubmit = async (data) => {
+    const { name, email } = data;
+    const toBeSubmitted = {
+      unit_name: name,
+      admin_name: name,
+      email: email,
+      password: "password",
+    };
+    try {
+      await createUnitandUser(toBeSubmitted);
+      toast.success("Admin berhasil di buat");
+      router.push("/unit-management");
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
 
   return (
     <div>
       <PageHeader title="Add Unit" />
-      <form autoComplete="off">
+      <form autoComplete="off" onSubmit={form.handleSubmit(onSubmit)}>
         <FieldSet className="w-full max-w-xs">
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="name">name</FieldLabel>
+              <FieldLabel htmlFor="name">Name</FieldLabel>
               <Input
                 id="name"
                 type="text"
                 placeholder="Universitas Unimonggo"
+                {...form.register("name")}
               />
             </Field>
-            <Controller
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                placeholder="unit@mail.com"
+                {...form.register("email")}
+              />
+            </Field>
+            {/* <Controller
               name="birthdate"
               control={form.control}
               render={({ field, fieldState }) => (
@@ -82,7 +112,7 @@ const AddUnitManagementPage = () => {
                   </Popover>
                 </Field>
               )}
-            />
+            /> */}
             <Field orientation="horizontal" className="flex justify-end">
               <Button
                 variant="outline"
