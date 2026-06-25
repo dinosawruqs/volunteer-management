@@ -1,17 +1,19 @@
+"use client";
 import PageHeader from "@/components/shared/PageHeader";
 import MainTable from "@/components/shared/TablePagination";
 
 const UnitManagementPage = ({ dataSource }) => {
   const columns = [
     {
+      key: "no",
+      title: "No",
+      dataIndex: "no",
+      render: (value, record, index) => index + 1,
+    },
+    {
       key: "name",
       title: "Name",
       dataIndex: "name",
-    },
-    {
-      key: "address",
-      title: "Address",
-      dataIndex: "address",
     },
     {
       key: "action",
@@ -26,7 +28,7 @@ const UnitManagementPage = ({ dataSource }) => {
         addLabel="Add Unit"
         addHref="/unit-management/add"
       />
-      <MainTable columns={columns} />
+      <MainTable columns={columns} dataSource={dataSource} rowkeys="id" />
     </div>
   );
 };
